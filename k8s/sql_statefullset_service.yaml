@@ -1,11 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mysql
   namespace: bankapp-namespace
   labels:
     app: mysql
 spec:
+  serviceName: "mysql-svc"  # This creates a headless service for stable network identities
   replicas: 1
   selector:
     matchLabels:
@@ -32,11 +33,33 @@ spec:
               name: bankapp-config
               key: MYSQL_DATABASE
         volumeMounts:
-        - name: mysql-pv-storage
+        - name: bankapp-data
           mountPath: /var/lib/mysql
-          subPath: mysql-data  # Optional: Ensure a subdirectory is used for better volume organization
-      volumes:
-      - name: mysql-pv-storage
-        persistentVolumeClaim:
-          claimName: mysql-pvc
+  volumeClaimTemplates:
+  - metadata:
+      name: bankapp-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi
+      storageClassName: standard
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+  namespace: bankapp-namespace
+  labels:
+    app: mysql
+spec:
+  clusterIP: None  # This creates a headless service for stable network identities
+  ports:
+  - port: 3306
+    targetPort: 3306
+  selector:
+    app: mysql
 
