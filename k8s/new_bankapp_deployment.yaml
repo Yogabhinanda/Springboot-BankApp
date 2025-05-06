@@ -52,24 +52,6 @@ spec:
             secretKeyRef:
               name: mysql-secret
               key: SPRING_DATASOURCE_PASSWORD
-        readinessProbe:
-          httpGet:
-            path: /actuator/health  # Spring Boot health endpoint
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-          successThreshold: 1
-          failureThreshold: 3
-        livenessProbe:
-          httpGet:
-            path: /actuator/health  # Spring Boot health endpoint
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 3
-          successThreshold: 1
-          failureThreshold: 3
         resources:
           requests:
             memory: "512Mi"
